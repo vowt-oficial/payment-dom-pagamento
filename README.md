@@ -13,6 +13,7 @@ Você pode instalar este pacote via Composer. Execute o seguinte comando no term
 ```<?php
 
 <?php
+
 use DomPagamento\DomPagamento;
 
 // Inclua o autoloader do Composer
