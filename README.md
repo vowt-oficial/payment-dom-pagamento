@@ -6,10 +6,6 @@ Este é um pacote PHP para interagir com a API do DomPagamento.
 
 - PHP 7.4 ou superior
 
-## Instalação
-
-Você pode instalar este pacote via Composer. Execute o seguinte comando no terminal:
-
 ```<?php
 
 <?php
