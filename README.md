@@ -10,6 +10,8 @@ Este é um pacote PHP para interagir com a API do DomPagamento.
 
 Você pode instalar este pacote via Composer. Execute o seguinte comando no terminal:
 
+```<?php
+
 <?php
 use DomPagamento\DomPagamento;
 
