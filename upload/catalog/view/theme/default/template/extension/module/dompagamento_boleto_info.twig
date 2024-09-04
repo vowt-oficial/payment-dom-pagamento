@@ -1,0 +1,59 @@
+<div class="box pt-3" id="box-pagamento-pix">
+	
+	<!-- status de pagamento -->
+	<div class="alert alert-success" id="box-pagamento-boleto">
+		<!-- IF É BOLETO -->
+		<div class="mensagem" id="mensagemBoleto">
+			<h3>BOLETO PRONTO</h3>
+			<p class="lead">
+				Clique no botão para imprimir o boleto e pague em qualquer banco da rede bancária.
+			</p>
+			<div class="botoes-boleto">
+				<a href="{{ boleto_url }}" id="imprimirBoleto" class="btn btn-primary" target="_blank"> <i class="bi bi-printer"></i> Imprimir Boleto</a>
+			</div>
+		</div>
+	</div>
+	<!-- /status de pagamento -->
+
+	<div class="pix-code text-center pt-3">
+		<p><b>Código de barras</b></p>
+
+		<a class="pix-code-copy" data-placement="top" title="" href="#" data-original-title="Código copiado!">
+			<p>
+				{{ boleto_digitable_line }}
+			</p>
+			<p>
+				<i class="fa fa-copy"></i>
+				Copiar código de barras
+			</p>
+		</a>
+
+		<input type="hidden" name="boleto_digitable_line" id="boleto_digitable_line" value="{{ boleto_digitable_line }}" readonly="readonly">
+	</div>
+
+</div>
+
+<script type="text/javascript">
+	$(function () {
+		var tooltipCopyTimeout;
+		$('#box-pagamento-pix .pix-code .pix-code-copy').click(function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var $elem = $(this);
+			clearTimeout(tooltipCopyTimeout);
+			var copyText = document.getElementById("boleto_digitable_line");
+			copyText.type = 'text';
+			copyText.focus();
+			copyText.select();
+			copyText.setSelectionRange(0, 99999);
+			document.execCommand('copy');
+			copyText.type = 'hidden';
+			
+			navigator.clipboard.writeText(copyText.value);
+
+			Swal.fire('Sucesso', 'Código de barras copiado com sucesso!', 'success');
+
+			return false;
+		});
+	});
+</script>

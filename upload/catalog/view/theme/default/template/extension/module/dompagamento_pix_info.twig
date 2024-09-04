@@ -1,0 +1,135 @@
+
+<div class="box pt-3" id="box-pagamento-pix">
+
+	<!-- status de pagamento -->
+	<div class="order-status order-state-canceled" style="display: none;">
+		<div class="alert alert-danger">
+			<h3 class="primary-color"><b>PAGAMENTO CANCELADO</b></h3>
+			<p>O pagamento via PIX foi cancelado devido à expiração do prazo</p>
+		</div>
+
+		<a href="{{ account }}" class="btn btn-secondary">{{ text_account }}</a>
+	</div>
+
+	<div class="order-status order-state-paid" style="display: none;">
+		<div class="alert alert-info">
+			<h3 class="primary-color"><b>PAGAMENTO APROVADO</b></h3>
+			<p>Seu pagamento foi aprovado com sucesso! Obrigado pela sua compra e pela confiança em nossos serviços.</p>
+		</div>
+
+		<a href="{{ account }}" class="btn btn-secondary">{{ text_account }}</a>
+		<a href="{{ order }}" class="btn btn-secondary">Acompanhar pedido</a>
+	</div>
+	<!-- /status de pagamento -->
+
+	<!-- qrcode -->
+	<div class="mensagem block-qrcode order-state order-state-pending">
+		<div class="title text-center cor-secundaria hidden-phone">
+			Use o QR Code para pagar o PIX
+		</div>
+		<div class="order-value text-center hidden-phone">
+			<span>Valor da compra:</span>
+			<strong class="primary-color">{{ total }}</strong>
+		</div>
+		<div class="order-value-mobile text-center d-block d-md-none">
+			<span>Valor do Pix a pagar:</span>
+			<strong class="primary-color">{{ total }}</strong>
+		</div>
+		<div class="pix-code-info">
+			<div class="pix-qrcode text-center">
+				<img src="{{ pix_qrcode }}" class="img-fluid">
+			</div>
+			<div class="pix-code text-center">
+				<p class="hidden-phone">Você também pode pagar escolhendo a opção PIX copia e cola no aplicativo que você usa.</p>
+				<p class="d-block d-md-none">Pague escolhendo a opção Pix Copia e Cola no aplicativo que você usa.</p>
+				<a class="pix-code-copy cor-secundaria hidden-phone" data-placement="top" title="" href="#" data-original-title="Código copiado!">
+					<i class="fa fa-copy"></i>
+					Copiar código do QR Code
+				</a>
+				<button class="mt-3 pix-code-copy btn btn-primary d-block d-md-none" data-placement="top" title="" data-original-title="Código copiado!">
+					Copiar código Pix Copia e Cola
+					<i class="fa fa-copy"></i>
+				</button>
+				<input type="hidden" name="pix_code" id="pix_code" value="{{ pix_content }}" readonly="readonly">
+			</div>
+		</div>
+		<hr>
+
+		<!-- INSTRUÇÕES PIX -->
+		<div class="text-center">
+			<div class="pix-steps">
+				<div class="stepper-wrapper">
+					<div class="stepper-item">
+						<div class="step-counter">1</div>
+						<div class="step-name">Abra o app do banco na opção PIX</div>
+					</div>
+					<div class="stepper-item">
+						<div class="step-counter">2</div>
+						<div class="step-name">Selecione a opção de pagar com QR Code,
+							aponte a câmera do seu celular para o QR Code ou copie e cole o
+							código</div>
+					</div>
+					<div class="stepper-item">
+						<div class="step-counter">3</div>
+						<div class="step-name">Confira os dados e confirme o pagamento</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /INSTRUÇÕES PIX -->
+
+	</div>
+</div>
+
+{% if order_status == 'pending' %}
+<script>
+	const intervaloID = setInterval(() => {
+		$.ajax({
+			url: 'index.php?route=extension/payment/dompagamento/status&order_id={{ order_id }}',
+			beforeSend: function () { },
+			success: function (json) {
+				$(`.order-state`).hide();
+				$(`.order-state-${json.status}`).show();
+
+				if (json.status != 'pending') {
+					clearInterval(intervaloID);
+				}
+
+				if (json.status == 'paid') {
+					location.reload();
+				}
+			},
+		})
+	}, 5000);
+</script>
+{% else %}
+<script>
+	$(`.order-state`).hide();
+	$(`.order-state-{{ order_status }}`).show();
+</script>
+{% endif %}
+
+<script type="text/javascript">
+	$(function () {
+		var tooltipCopyTimeout;
+		$('#box-pagamento-pix .pix-code .pix-code-copy').click(function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var $elem = $(this);
+			clearTimeout(tooltipCopyTimeout);
+			var copyText = document.getElementById("pix_code");
+			copyText.type = 'text';
+			copyText.focus();
+			copyText.select();
+			copyText.setSelectionRange(0, 99999);
+			document.execCommand('copy');
+			copyText.type = 'hidden';
+
+			navigator.clipboard.writeText(copyText.value);
+
+			Swal.fire('Sucesso', 'Chave PIX copiada com sucesso!', 'success');
+
+			return false;
+		});
+	});
+</script>

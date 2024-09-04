@@ -1,0 +1,180 @@
+<style>
+    .card-container { width: 100%; max-width: 350px; margin: 50px auto; }
+    .card-container input { margin-bottom: 10px; }
+    #form-card { margin-top: 10px; }
+    .form-container { margin-top: 25px; }
+</style>
+
+{{ header }}
+
+<div class="card-container">
+
+    <div class="new-card">
+        <div class="card-wrapper"></div>
+    </div>
+
+    <div class="form-container active">
+        <form id="form-card">
+            <div class="new-card">
+
+                <input placeholder="Número do cartão" type="tel" name="number" class="form-control" id="card_number" value="">
+                <input placeholder="Nome impresso no cartão" type="text" name="card_name" class="form-control" id="card_name" value="" id="holder_name">
+                <input placeholder="CPF do dono do cartão" type="tel" name="number" class="form-control" id="card_document" value="">
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <input placeholder="MM/YY" type="text" name="card_expiry" class="form-control" id="card_expiry" value="">
+                    </div>
+                    <div class="col-sm-6">
+                        <input placeholder="CVC" type="number" name="card_cvv" class="form-control" id="card_cvv" value="">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <select name="installments" id="installments" class="form-control">
+                    {% for installment in installments %}
+                        <option value="{{ installment.installment }}" {% if nstallment.installment == 1 %}selected{% endif %}>
+
+                            {% if installment.installment == 1 %}
+                                Crédito à vista ({{ installment.value_interest }}) sem juros 
+                            {% else %}
+                                Parcelado em {{ installment.installment }}x de {{ installment.value_interest }} (Total {{ installment.total }}) 
+                                {% if installment.interest %}
+                                    com juros {{ installment.interest }}%
+                                {% else %}
+                                    sem juros
+                                {% endif %}    
+                            {% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {{ captcha }}
+
+            <div class="buttons">
+                <button type="submit" class="btn btn-primary btn-block btn-confirm w-100" id="button-confirm">PROCESSAR PAGAMENTO</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $('#form-card').card({
+        formatting: true,
+        container: '.card-wrapper',
+        formSelectors: { 
+            numberInput: "input#card_number",
+            expiryInput: "input#card_expiry",
+            cvcInput: "input#card_cvv",
+            nameInput: "input#card_name"
+        },
+        placeholders: {
+            name: 'Seu Nome',
+            month: 'Mês',
+        }
+    });
+</script>
+
+<script>
+$('#form-card').on('submit', function(e) {
+	e.preventDefault();
+
+	$('#button-confirm').addClass('disabled').prop("disabled", true).text('Processando...');
+
+	//Sua chave pública:
+	let public_key = '{{ public_key }}';
+
+	card_expiry = $('#card_expiry').val().split('/');
+
+	//Dados do cartão:
+	let data_card = {
+		name: $('#card_name').val().trim(), //Nome do cartão
+		document: $('#card_document').val().trim().replace(/[^0-9]/g, ''), // CPF
+		number: $('#card_number').val().trim('').replace(/[^0-9]/g, ''),//Número do cartão
+		cvv: $('#card_cvv').val(), //Código de segurança
+		month: card_expiry[0].trim(), //Mês que expira
+		year: card_expiry[1].trim() //Ano que expira
+	};
+
+	installments = $('#installments').val();
+
+	// console.log( {public_key, data_card, installments} );
+
+	getTokenCard(public_key, data_card, installments, function (data) {
+		if (data.token) {
+			createTransaction(data);
+		} else {
+			Swal.fire("ERRO", data.msgError, 'error');
+		}
+    });
+});
+
+function createTransaction(data) {
+	$.ajax({
+		url: '{{ confirm }}',
+		type: 'POST',
+		data: {
+			bin: data.bin,
+			token: data.token,
+			brand: data.brand,
+			holder_name: $('#card_name').val().trim(),
+			installments: $('#installments').val(),
+		},
+		
+		beforeSend: function() {
+			$('#button-confirm').addClass('disabled').prop("disabled", true).text('Processando...');
+			vowtDomPagamento.loading({ text: 'Processando seu pagamento', type: 'show' });
+		},
+	
+		success: function(json) {
+			vowtDomPagamento.loading({ type: 'hide' });
+	
+			if (json['success']) {
+				vowtDomPagamento.alert({ text: 'Pedido gerado com sucesso!', time: 2000, icon: 'success' }).then(() => {
+					location.href = 'index.php?route=checkout/success&order_id=' + json.order_id;
+				});
+			} else if(json['error']) {
+				vowtDomPagamento.alert({ text: json['error'], button: 'Tentar novamente', icon: 'error' }).then(() => {
+					location.reload();
+				});
+			} else {
+				vowtDomPagamento.alert({ text: JSON.stringify(json), button: 'Tentar novamente', icon: 'error' }).then(function() {
+					location.reload();
+				});
+			}
+	
+			$('#button-confirm').button('reset').prop("disabled", false).removeClass('disabled').text('Tentar novamente');
+		},
+		error: function(json) {
+			vowtDomPagamento.alert({ text: json.responseJSON.error, button: 'Tentar novamente', icon: 'error' }).then(function() {
+				location.reload();
+			});
+		}
+	});
+}
+</script>
+
+<script>
+
+{% if is_test %}
+    $('#card_number').val('4033421952807494');
+    $('#card_document').val('301.835.550-40');
+    $('#card_name').val('Cleomar Campos');
+    $('#card_expiry').val('07/27');
+    $('#card_cvv').val('792');
+{% endif %}
+
+$('#dompagamento_card_id').change(function() {
+    if ($(this).val() <= 0) {
+        $('.new-card').show();
+    } else {
+        $('.new-card').hide();
+    }
+});
+
+$('#dompagamento_card_id').trigger('change');
+
+$('#card_number').focus();
+</script>

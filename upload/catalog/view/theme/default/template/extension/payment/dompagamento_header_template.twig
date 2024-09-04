@@ -1,0 +1,69 @@
+{% if env == 'sandbox' %}
+<div class="alert alert-danger">
+	<b>Atenção:</b> você está no ambiente de testes!
+</div>
+{% endif %}
+
+<style>
+	#vowtloading{width: 100%; height: 100%; position: fixed; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.8); padding: 30px; display: none; justify-content: center; flex-direction: column; align-items: center; z-index: 1000; }
+	#vowtloading_box{width: 100%; max-width: 450px; padding: 40px; background-color: #fff; border-radius: 15px; text-align: center;}
+
+	#vowt_box_gif h2{font-size: 24px; color: #0005ff;}
+	#vowt_box_gif.success h2 {color: green;}
+	#vowt_box_gif.error h2 {color: red;}
+	#vowt_box_gif.error img { max-width: 80px !important; }
+</style>
+
+<div id="vowtloading">
+	<div id="vowtloading_box">
+		<div id="vowt_box_gif" style="display:none">
+			<img src="catalog/view/theme/default/image/dompagamento/loading.gif" style="max-width: 100%; max-width:100%">
+			<h2>Pagamento Recusado</h2>
+			<a role="button"></a>
+		</div>
+	</div>
+</div>
+
+<script>
+var vowtDomPagamento = {
+	alert(config) {
+		return new Promise((resolve) => {
+			$('#vowtloading').css('display','flex');
+			$('#vowt_box_gif').attr('class', config.icon || 'success').show();
+			$('#vowt_box_gif').find('h2').text(config.text);
+
+			if (config.buttonText) {
+				$('#vowt_box_gif').find('a').text(config.buttonText);
+			}
+			
+			$('#vowt_box_gif').find('img').attr('src', `catalog/view/theme/default/image/dompagamento/${config.icon || 'success'}.gif`);
+
+			if (config.time) {
+				setTimeout(() => {
+					resolve();
+				}, config.time);
+			} else {
+				// resolve();
+			}
+
+			if (!config.backdrop) {
+				$('#vowtloading, #vowtloading a').click(function() {
+					$('#vowtloading').fadeOut();
+					resolve();
+				});
+			}
+		});
+	},
+
+	loading(config) {
+		if (config.type == 'show') {
+			$('#vowtloading').css('display','flex');
+			$('#vowt_box_gif').attr('class', config.icon || 'loading').show();
+			$('#vowt_box_gif').find('h2').text(config.text);
+			$('#vowt_box_gif').find('img').attr('src', `catalog/view/theme/default/image/dompagamento/loading.gif`);
+		} else {
+			$('#vowtloading').css('display','none');
+		}
+	},
+}
+</script>

@@ -1,0 +1,127 @@
+<ul class="nav nav-tabs">
+    {% for index, store in stores %}
+      <li {% if index == 0 %}class="active"{% endif %}><a href="#tab-card-store-{{ store.store_id }}" data-toggle="tab">{{ store.name }}</a></li>
+    {% endfor %}
+</ul>
+
+<div class="tab-content">
+    {% for index, store in stores %}
+    <div class="tab-pane{% if index == 0 %} active{% endif %}" id="tab-card-store-{{ store.store_id }}">
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-title">{{ entry_title }}</label>
+            <div class="col-sm-10">
+                <input type="text" name="payment_dompagamento_card_title[{{ store.store_id }}]" value="{{ payment_dompagamento_card_title[store.store_id] }}" placeholder="{{ entry_title }}" id="input-title" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+            <div class="col-sm-10">
+                <select name="payment_dompagamento_card_status[{{ store.store_id }}]" id="input-status" class="form-control">
+                    {% if payment_dompagamento_card_status[store.store_id] %}
+                        <option value="1" selected="selected">{{ text_enabled }}</option>
+                        <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                        <option value="1">{{ text_enabled }}</option>
+                        <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                </select>
+            </div>
+        </div>
+
+        <fieldset>
+            <legend>Parcelamento</legend>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-max-installments">Máximo de parcelas</label>
+                <div class="col-sm-10">
+                    <select name="payment_dompagamento_card_max_installments[{{ store.store_id }}]" id="input-card-installments" class="form-control">
+                        {% for installment in installments %}
+                        {% if installment == 1 %}
+                            <option value="{{ installment }}" {% if payment_dompagamento_card_max_installments[store.store_id] ==installment %}selected{% endif %}>Somente à vista</option>
+                        {% else %}
+                            <option value="{{ installment }}" {% if payment_dompagamento_card_max_installments[store.store_id] ==installment %}selected{% endif %}>{{ installment }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-discount_card">Valor mínimo da parcela</label>
+                <div class="col-sm-10">
+                    <input type="text" name="payment_dompagamento_card_min_installment[{{ store.store_id }}]" value="{{ payment_dompagamento_card_min_installment[store.store_id] }}" id="input-payment-dompagamento-card-min-installment" class="form-control" />
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Desconto</legend>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-discount_card">{{ entry_discount }}</label>
+                <div class="col-sm-10">
+                    <input type="number" name="total_dompagamento_discount_card_value[{{ store.store_id }}]" value="{{ total_dompagamento_discount_card_value[store.store_id] }}" placeholder="Ex: 10 para 10%" id="input-payment_discount_card" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-card-discount-type">{{ entry_discount_type }}</label>
+                <div class="col-sm-10">
+                    <select name="total_dompagamento_discount_card_type[{{ store.store_id }}]" id="input-card-discount-type" class="form-control">
+                        <option value="p" {% if total_dompagamento_discount_card_type[store.store_id] == 'p' %}selected{% endif %}>Porcentagem</option>
+                        <option value="f" {% if total_dompagamento_discount_card_type[store.store_id] == 'f' %}selected{% endif %}>Fixo</option>
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Cartão</legend>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-operation-type">Tipo de operação</label>
+                <div class="col-sm-10">
+                    <select name="payment_dompagamento_card_operation_type[{{ store.store_id }}]" id="input-operation-type" class="form-control">
+                        <option value="auth_and_capture" {% if payment_dompagamento_card_operation_type[store.store_id] == 'auth_and_capture' %}selected{% endif %}>Autorizar e Capturar</option>
+                        <option value="auth_only" {% if payment_dompagamento_card_operation_type[store.store_id] == 'auth_only' %}selected{% endif %}>Apenas Autorizar</option>
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="alert alert-info">
+            <p>
+                <b>Apenas Autorizar:</b>
+                A autorização (Apenas Autorizar) é quando é feito apenas a conferência do valor no cartão de crédito do consumidor final. Ou seja, nós verificamos se ele tem o valor disponível para ser usado e o banco autoriza essa transação. Porém é apenas uma consulta, Não existe a cobrança em si.
+            </p>
+
+            <p>
+                <b>Autorizar e Capturar:</b>
+                Já a autorização + captura (método auth_and_capture) faz todo o procedimento acima de consulta e também já faz a captura do valor da transação, tudo de forma automática. E aí sim entra o fluxo financeiro, onde terá a cobrança do valor de fato.
+            
+                Sendo assim, é preciso configurar que as suas requisições sempre estejam no método "Autorizar e Capturar" se você deseja que esse processo seja feito de forma completamente automática, sem que você precise tomar uma ação
+            </p>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-sort-order">{{ entry_sort_order }}</label>
+            <div class="col-sm-10">
+                <input type="text" name="payment_dompagamento_card_custom_sort_order[{{ store.store_id }}]" value="{{ payment_dompagamento_card_custom_sort_order[store.store_id] }}" id="input-payment_sort-order" class="form-control" placeholder="{{ entry_sort_order }}" />
+            </div>
+        </div>
+
+        <fieldset>
+            <legend>Taxa de juros</legend>
+            <div class="tab-pane" id="tab-installment">
+                {% for installment in installments %}
+                <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-installment">Juros para parcela {{ installment }}</label>
+                <div class="col-sm-3">
+                    <input type="number" name="payment_dompagamento_card_installment[{{ store.store_id }}][{{ installment }}]" value="{{ payment_dompagamento_card_installment[store.store_id][installment] }}" placeholder="Ex: 5 para 5%" id="input-payment-installment-{{ installment }}" class="form-control" />
+                </div>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- Tab.Installment -->
+        </fieldset>
+    </div>
+    {% endfor %}
+</div>

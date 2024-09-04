@@ -1,0 +1,80 @@
+<div class="alert alert-info">
+    <b>PIX</b>
+    <ul style="list-style: none; padding: 0;">
+        <li>1) Acesse <a href="https://id.dompagamento.me/" target="_blank">https://id.dompagamento.me/</a></li>
+        <li>2) Configurações <br /></li>
+        <li>3) Meios de pagamentos</li>
+        <li>4) Clique em editar no botão verde a direita</li>
+        <li>5) Gere uma chave PIX e aceite os temos e condições</li>
+        <li>6) Confirme e salve</li>
+    </ul>
+</div>
+
+<ul class="nav nav-tabs">
+    {% for index, store in stores %}
+      <li {% if index == 0 %}class="active"{% endif %}><a href="#tab-pix-store-{{ store.store_id }}" data-toggle="tab">{{ store.name }}</a></li>
+    {% endfor %}
+</ul>
+
+<div class="tab-content">
+    {% for index, store in stores %}
+    <div class="tab-pane{% if index == 0 %} active{% endif %}" id="tab-pix-store-{{ store.store_id }}">
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-title"><span data-toggle="tooltip" title="{{ help_title }}">{{ entry_title }}</span></label>
+            <div class="col-sm-10">
+                <input type="text" name="payment_dompagamento_pix_title[{{ store.store_id }}]" value="{{ payment_dompagamento_pix_title[store.store_id] }}"
+                    placeholder="{{ entry_title }}" id="input-title" class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-discount_pix">{{ entry_days }}</label>
+            <div class="col-sm-3">
+                <input type="text" name="payment_dompagamento_pix_days[{{ store.store_id }}]" value="{{ payment_dompagamento_pix_days[store.store_id] }}" placeholder="Ex: 1 para um dia" id="input-payment_discount_pix" class="form-control" />
+                <p class="help-block">Ex: 1 para um dia</p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-discount_pix">{{ entry_discount }}</label>
+            <div class="col-sm-3">
+                <input type="text" name="total_dompagamento_discount_pix_value[{{ store.store_id }}]" value="{{ total_dompagamento_discount_pix_value[store.store_id] }}" placeholder="Ex: 10 para 10%" id="input-payment_discount_pix" class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-sort-order">{{ entry_sort_order }}</label>
+            <div class="col-sm-3">
+                <input type="number" name="payment_dompagamento_pix_custom_sort_order[{{ store.store_id }}]" value="{{ payment_dompagamento_pix_custom_sort_order[store.store_id] }}" placeholder="{{ entry_sort_order }}" id="input-payment-sort-order" class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-pix-discount-type">{{ entry_discount_type }}</label>
+            <div class="col-sm-10">
+                <select name="total_dompagamento_discount_pix_type[{{ store.store_id }}]" id="input-pix-discount-type" class="form-control">
+                    <option value="p" {% if total_dompagamento_discount_pix_type[store.store_id] == 'p' %}selected{% endif %}>Porcentagem</option>
+                    <option value="f" {% if total_dompagamento_discount_pix_type[store.store_id] == 'f' %}selected{% endif %}>Fixo</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+            <div class="col-sm-10">
+                <select name="payment_dompagamento_pix_status[{{ store.store_id }}]" id="input-pix-status" class="form-control">
+                    {% if payment_dompagamento_pix_status[store.store_id] %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                </select>
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>

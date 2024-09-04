@@ -1,0 +1,70 @@
+{{ header }}
+{{ loading }}
+
+{% if is_error %}
+<div class="alert alert-danger">
+    Esse forma de pagamento não está disponivel
+</div>
+<a href="index.php?route=extension/module/checkoutpro" class="btn btn-primary w-100">
+    <b>Alterar a forma de pagamento.</b>
+</a>
+{% endif %}
+
+{% if not is_error %}
+<div class="col-sm-12 checkout-block">
+
+  <form class="form-group" id="form-pix">
+
+    <input type="hidden" name="dompagamento_token" value="{{ dompagamento_token }}">
+
+    {{ captcha }}
+  
+    <button type="button" id="button-confirm" class="btn btn-primary btn-padrao col-sm-12">
+      <i class="fa fa-barcode"></i>
+      {{ button_confirm }}
+    </button>
+
+  </form>
+</div>
+{% endif %}
+
+<script>
+$('#button-confirm').click(function() {
+  $('#button-confirm').button('loading').prop('disabled', true).text('Processando...');
+
+  $.ajax({
+    url: '{{ confirm }}',
+    type: 'POST',
+    data: $('#form-pix').serialize(),
+
+    beforeSend: function() {
+      //vowtDomPagamento.loading({ text: 'Processando seu pagamento', type: 'show' });
+    },
+
+    success: function(json) {
+        vowtDomPagamento.loading({ type: 'hide' });
+
+        if (json['success']) {
+            vowtDomPagamento.alert({ text: 'PIX gerado com sucesso!', time: 2000, icon: 'success' }).then(() => {
+              location.href = 'index.php?route=checkout/success&order_id=' + json.order_id;
+            });
+        } else if(json['error']) {
+            vowtDomPagamento.alert({ text: json['error'], button: 'Tentar novamente', icon: 'error' }).then(() => {
+              location.reload();
+            });
+        } else {
+          vowtDomPagamento.alert({ text: JSON.stringify(json), button: 'Tentar novamente', icon: 'error' }).then(function() {
+            location.reload();
+          });
+        }
+    },
+
+    error: function(json) {
+      vowtDomPagamento.alert({ text: JSON.stringify(json.responseJSON.error), button: 'Tentar novamente', icon: 'error' }).then(function() {
+        location.reload();
+      });
+    }
+
+  });
+});
+</script>

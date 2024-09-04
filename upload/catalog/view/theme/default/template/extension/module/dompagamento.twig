@@ -1,0 +1,184 @@
+<div class="pedido-finalizado">
+	<div class="cabecalho-interno caixa-dados borda-alpha row">
+		<div class="col-sm-4 order-1 order-md-0">
+
+			<ul class="caixa-info d-none d-md-block">
+				<li><h4 class="cor-secundaria">Número do pedido:</h4></li> 
+				<li><h2 class="primary-color numero-pedido"><i class="bi bi-check2-square"></i> {{ order_id }}</h2> </li>
+				<li>
+					Situação do pedido: <b class="primary-color">{{ order_status_name }}</b>
+				</li>
+			</ul>
+
+			<ul class="caixa-info mt-3">
+				<li>
+					<strong>Entrega: <b class="primary-color">{{ shipping_method }}</b></strong>
+					<p>Após aprovação da compra</p>
+				</li>
+			</ul>
+
+			<ul class="list-group mt-3 caixa-info p-0">
+				<li class="list-group-item"><b>Transação:</b> {{ transaction_id }}</li>
+				<li class="list-group-item"><b>Forma de pagamento:</b> {{ payment_method }}</li>
+				<li class="list-group-item"><b>Valor total:</b> {{ total }}</li>
+				<li class="list-group-item"><b>Data do pedido:</b> {{ date }}</li>
+			</ul>
+
+			<ul class="list-group mt-3 caixa-info p-0">
+				<li class="list-group-item">
+					<strong>Dados cadastrais:</strong>
+				</li>
+				<li class="list-group-item"><b>Seu nome:</b> {{ firstname }} {{ lastname }}</li>
+				<li class="list-group-item"><b>Endereço:</b> {{ address_1 }}</li>
+				<li class="list-group-item"><b>Bairro:</b> {{ address_2 }}</li>
+				<li class="list-group-item"><b>CEP:</b> {{ postcode }}</li>
+			</ul>
+		</div>
+
+		<div class="col-sm-8">
+			{{ payment }}
+		</div>
+	</div>
+
+</div>
+
+
+<style>
+	ul, li {
+		list-style-type: none;
+	}
+
+	.pedido-finalizado #box-pagamento-pix .order-value span {
+		display: block;
+		font-size: 16px;
+		margin-bottom: 5px;
+	}
+
+	.pedido-finalizado #box-pagamento-pix .order-value strong {
+		font-size: 24px;
+	}
+
+	.list-group-item { background: none !important; border: none; }
+
+	.pedido-finalizado #box-pagamento-pix {
+		padding: 0 40px 40px 40px;
+		background: #FFF;
+		margin-bottom: 20px;
+	}
+
+	.secao-principal .box {
+		box-shadow: 0 0 5px rgba(0,0,0,.15);
+	}
+
+	.pedido-finalizado .numero-pedido {
+		font-size: 50px;
+	}
+
+	.pedido-finalizado #box-pagamento-pix a.pix-code-copy {
+		font-weight: bold;
+		font-size: 15px;
+		text-decoration: none;
+	}
+
+	.pedido-finalizado #box-pagamento-pix .pix-steps .stepper-item::after {
+		position: absolute;
+		content: "";
+		border-bottom: 2px solid #d5d7da;
+		width: 100%;
+		top: 17px;
+		left: 40%;
+		z-index: 2;
+	}
+	.pedido-finalizado #box-pagamento-pix .pix-steps .stepper-item .step-counter {
+		position: relative;
+		z-index: 5;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 32px;
+		height: 32px;
+		border: 2px solid #a3aab5;
+		border-radius: 50%;
+		background: #FFF;
+		margin-bottom: 5px;
+	}
+	.pedido-finalizado #box-pagamento-pix .pix-steps {
+		display: inline-block;
+		line-height: 17px;
+		margin-bottom: 20px;
+	}
+	.secao-principal .borda-alpha, .secao-principal .borda-alpha * {
+		border-color: rgba(0,0,0,.09);
+	}
+	.pedido-finalizado #box-pagamento-pix .pix-steps .stepper-item {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		flex: 1;
+		max-width: 140px;
+		padding: 0 10px;
+	}
+	.secao-principal .borda-alpha, .secao-principal .borda-alpha * {
+		border-color: rgba(0,0,0,.09);
+	}
+
+	.pedido-finalizado #box-pagamento-pix .pix-steps .stepper-wrapper {
+		margin-top: auto;
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 20px;
+	}
+
+	.secao-principal .borda-alpha, .secao-principal .borda-alpha * {
+		border-color: rgba(0,0,0,.09);
+	}
+
+	.pedido-finalizado #box-pagamento-pix .title {
+		font-size: 20px;
+		font-weight: 700;
+		margin-bottom: 15px;
+	}
+
+	.title, .titulo, .titulo-categoria, .titulo-sessao, .nome-produto {
+		font-family: poppins,sans-serif!important;
+	}
+
+	.pedido-finalizado .cabecalho-interno ul {
+		margin: 0 10px 0 0;
+	}
+
+	.pedido-finalizado .cabecalho-interno {
+		padding: 10px 0;
+		border: 0;
+		margin-bottom: 20px;
+	}
+
+	.primary-color {
+		color: #000 !important;
+	}
+
+	.row-fluid .span4 {
+		width: 31.861702127659576%;
+	}
+
+	.secao-principal .borda-alpha,
+	.secao-principal .borda-alpha * {
+		border-color: rgba(0, 0, 0, .09);
+	}
+
+	.secao-principal .caixa-info {
+		background-color: rgba(0, 0, 0, .02);
+		border-radius: 3px;
+		box-shadow: none;
+	}
+
+	.caixa-info {
+		border-radius: 10px;
+		padding: 10px 15px;
+		background-color: rgba(0, 0, 0, 0.04);
+		border: 1px solid #fff;
+		box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+	}
+</style>
+

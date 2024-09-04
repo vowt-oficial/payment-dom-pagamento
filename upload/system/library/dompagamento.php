@@ -59,7 +59,7 @@ interface PaymentDetailsInterface {
     public function getCodExternal(): int;
     public function setDiscount(int $value): self;
     public function getDiscount(): float;
-    public function setTotal(int $value): self;
+    public function setTotal(float $value): self;
     public function getTotal(): float;
     public function setPaymentMethod(string $value): self;
     public function getPaymentMethod(): string;
@@ -383,7 +383,7 @@ class DomPagamento implements EnvironmentInterface, PaymentDetailsInterface, Htt
      * @param int $value The total amount.
      * @return self
      */
-    public function setTotal(int $value): self {
+    public function setTotal(float $value): self {
         $this->total = $value;
         return $this;
     }

@@ -1,0 +1,297 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-payment" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+
+        <div style="margin-bottom: 50px;">
+          <span id="dompagamento-hub"></span>
+        </div>
+
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-payment" class="form-horizontal">
+
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab-general" data-toggle="tab">{{ tab_general }}</a></li>
+            <li><a href="#tab-status" data-toggle="tab">Status</a></li>
+            <li><a href="#tab-card" data-toggle="tab">Cartão de crédito</a></li>
+            <li><a href="#tab-boleto" data-toggle="tab">Boleto bancário</a></li>
+            <li><a href="#tab-pix" data-toggle="tab">Pix</a></li>
+          </ul>
+
+          <div class="tab-content">
+            
+            <div class="tab-pane active" id="tab-general">
+              
+              <div class="form-group" style="display: none;">
+                <label class="col-sm-2 control-label" for="input-discount-sort-order">Posição do desconto</label>
+                <div class="col-sm-10">
+                  <input type="text" name="total_dompagamento_discount_sort_order" value="{{ total_dompagamento_discount_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-discount-sort-order" class="form-control" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-limit">{{ entry_limit }}</label>
+                <div class="col-sm-10">
+                  <input name="payment_dompagamento_limit" id="input-limit" class="form-control" value="{{ payment_dompagamento_limit }}">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_dompagamento_status" id="input-status" class="form-control">
+                    {% if payment_dompagamento_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              
+              {% if not captcha %}
+              <div class="alert alert-danger">
+                  <b>Para o módulo funcionar corretamente por favor ative o Captcha clicando aqui</b>
+                  <ol>
+                    <li>Acesse configurações</li>
+                    <li>Clique em gerenciar lojas</li>
+                    <li>Selecione a loja para editar</li>
+                    <li>Clique em opções</li>
+                    <li>E selecione um Antispam</li>
+                    <li><a href="{{ config }}">Clique aqui para acessar as configurações</a></li>
+                  </ol>
+              </div>
+              {% endif %}
+
+              <ul class="nav nav-tabs">
+                {% for index, store in stores %}
+                  <li {% if index == 0 %}class="active"{% endif %}><a href="#tab-store-{{ store.store_id }}" data-toggle="tab">{{ store.name }}</a></li>
+                {% endfor %}
+              </ul>
+
+              <div class="tab-content">
+                {% for index, store in stores %}
+                <div class="tab-pane{% if index == 0 %} active{% endif %}" id="tab-store-{{ store.store_id }}">
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label" for="input-discount-sort-order">{{ entry_public_key }}</label>
+						<div class="col-sm-10">
+							<input type="text" name="payment_dompagamento_public_key[{{ store.store_id }}]" value="{{ payment_dompagamento_public_key[store.store_id] }}" placeholder="{{ entry_public_key }}" id="input-public-key" class="form-control" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label" for="input-discount-sort-order">{{ entry_secret_key }}</label>
+						<div class="col-sm-10">
+						<input type="text" name="payment_dompagamento_secret_key[{{ store.store_id }}]" value="{{ payment_dompagamento_secret_key[store.store_id] }}" placeholder="{{ entry_sort_order }}" id="input-secret-key" class="form-control" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label" for="input-env">{{ entry_env }}</label>
+						<div class="col-sm-10">
+						<select name="payment_dompagamento_store_env[{{ store.store_id }}]" id="input-env" class="form-control">
+							{% if payment_dompagamento_store_env[store.store_id] %}
+							<option value="production" selected="selected">{{ text_production }}</option>
+							<option value="sandbox">{{ text_sandbox }}</option>
+							{% else %}
+							<option value="production">{{ text_production }}</option>
+							<option value="sandbox" selected="selected">{{ text_sandbox }}</option>
+							{% endif %}
+						</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+						<div class="col-sm-10">
+						<select name="payment_dompagamento_store_status[{{ store.store_id }}]" id="input-status" class="form-control">
+							{% if payment_dompagamento_store_status[store.store_id] %}
+							<option value="1" selected="selected">{{ text_enabled }}</option>
+							<option value="0">{{ text_disabled }}</option>
+							{% else %}
+							<option value="1">{{ text_enabled }}</option>
+							<option value="0" selected="selected">{{ text_disabled }}</option>
+							{% endif %}
+						</select>
+						</div>
+					</div>
+				</div>
+                {% endfor %}
+              </div>
+            </div>
+            <!-- Tab.General -->
+
+            <div class="tab-pane" id="tab-status">
+              {% for state in status %}
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-order-processing">{{ state.label }}</label>
+                <div class="col-sm-10">
+                  <select name="{{ state.name }}" id="input-order-processing" class="form-control">
+                    {% for order_status in statuses %}
+                    {% if order_status.order_status_id == state.value %}
+                    <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                    {% else %}
+                    <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <!-- Tab.Status -->
+
+            <div class="tab-pane" id="tab-card">
+              {{ card }}
+            </div>
+            <!-- Tab.Card -->
+
+            <div class="tab-pane" id="tab-boleto">
+              {{ boleto }}
+            </div>
+            <!-- Tab.Boleto -->
+
+            <div class="tab-pane" id="tab-pix">
+              {{ pix }}
+            </div>
+            <!-- Tab.PIX -->
+
+            <div class="tab-pane" id="tab-webhook">
+              <div class="alert alert-info">
+                <b>URL de notificações automáticas:</b> 
+                <ul style="list-style: none; padding: 0;">
+                  <li>1) Acesse <a href="https://id.dompagamento.me/" target="_blank">https://id.dompagamento.me/</a></li>
+                  <li>2) Menu configurações em seguida Webhooks e crie um webhook <br /></li>
+                  <li>3) Clique em Cobrança</li>
+                  <li>4) Selecione todos os checkbox</li>
+                  <li>5) Copie e cole a URL abaixo</li>
+                </ul>
+              </div>
+
+              <fieldset class="mt-4">
+                <h3>Webhook</h3>
+                <div class="col-sm-12">
+                  {% for store in stores %}
+                  <div class="form-group">
+                    <label>{{ store.name }}</label>
+                    <input type="text" value="{{ store.webhook }}" readonly class="form-control" onclick="$(this).select(); document.execCommand('copy')">
+                  </div>
+                  {% endfor %}
+                </div>
+              </fieldset>
+
+              <fieldset class="mt-4">
+                <h3>Cron</h3>
+                <div class="alert alert-info">
+                  <b>Configure o cron para executar a cada 5 minutos</b>
+                  <code>*/5 * * * *</code>
+                </div>
+                <div class="col-sm-12">
+                  {% for store in stores %}
+                  <div class="form-group">
+                    <label>{{ store.name }}</label>
+                    <input type="text" value="{{ store.cron }}" readonly class="form-control" onclick="$(this).select(); document.execCommand('copy')">
+                  </div>
+                  {% endfor %}
+                </div>
+              </fieldset>
+
+            </div>
+            <!-- Tab.Webhook -->
+
+            <div class="tab-pane" id="tab-multi">
+
+              <div class="alert alert-info">
+                <b>OBS:</b>
+                A opção de multi meios de pagamento está disponível apenas para o uso de link de pagamento. 
+                Outras integrações diretas com sistemas de pagamento não são suportadas. 
+                Para oferecer diferentes métodos de pagamento, recomendamos considerar soluções específicas de integração para cada meio desejado. 
+              </div>
+
+              <div class="alert alert-warning">
+                <p>
+                  <b>Atenção:</b>
+                  Atualmente possuímos no Checkout dompagamento.me as opções de multimeios com "2 cartões" ou "1 cartão + boleto". No primeiro cenário, caso uma das transações não seja aprovada, realizamos o cancelamento ou não processamos a outra transação. Já no segundo, caso a transação de cartão de crédito não seja aprovada, o boleto também não é emitido.                
+                </p>
+                
+                <p>
+                  <b>Exemplo:</b>
+                  Ana quer comprar uma nova TV no valor de R$1000,00, mas como seu cartão só possui um limite de R$900,00, ela pode solicitar a geração de um boleto para conseguir dompagamento os R$100,00 restantes.                
+                </p>
+              </div>
+
+              <div class="alert alert-info">
+                <b>Comportamento dos Pedidos:</b>
+                O pedido só será considerado pago se todas as suas cobranças forem aprovadas nas adquirentes, ou após a aprovação na adquirente e a identificação do pagamento do boleto.
+                Caso uma cobrança não seja aprovada, você deve decidir como prefere seguir: cancelar o pedido completo ou fazer uma recuperação ativa do pedido, entrando em contato com o cliente para obter uma nova forma de pagamento, ou utilizando a funcionalidade de envio de checkout por email.                
+              </div>
+            </div>
+            <!-- Tab.Link.Multi.Meio -->
+
+          </div>
+          <!-- Tab.Content -->
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="view/javascript/hub.js"></script>
+
+<script>
+
+  // script for install id dynamically
+  let installId = {% if payment_dompagamento_install_id %}'{{ payment_dompagamento_install_id }}'{% else %}null{% endif %};
+  //installId = null;
+  
+  let searchParams = new URLSearchParams(window.location.search);
+
+  if (searchParams.has("installId")) {
+    installId = searchParams.get("installId");
+  }
+  
+  // hub config
+  let config = {
+    publicAppKey: "a8d2d590-08e3-4c56-8b14-4cfc73a30591",
+    installId: installId,
+    redirectUrl: "{{ callback }}",
+    language: "pt-BR",
+    environment: "prod"
+  };
+  
+  // run and create button
+  Hub(config);
+  
+</script>
+
+<script>
+  // $('a[href="#tab-card"]').click();
+
+  $('#input-checkout').change(function() {
+    if ($(this).val() == 'transparent') {
+      $(`a[href="#tab-multi"]`).parent().hide();
+    } else {
+      $(`a[href="#tab-multi"]`).parent().show();
+    }
+  });
+
+  $('#input-checkout').trigger("change");
+</script>
+{{ footer }}          

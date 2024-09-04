@@ -1,0 +1,29 @@
+{% if id %}
+<table class="table table-bordered">
+	<tr>
+		<td><b>Transação:</b> {{ id }}</td>
+	</tr>
+	<tr>
+		<td><b>TID:</b> {{ charges[0].last_transaction.acquirer_tid }}</td>
+	</tr>
+	<tr>
+		<td><b>Parcelas:</b> {{ charges[0].last_transaction.installments }}x</td>
+	</tr>	
+	<tr>
+		<td><b>NSU:</b> {{ charges[0].last_transaction.acquirer_nsu }}</td>
+	</tr>
+	<tr>
+		<td><b>Bandeira:</b> {{ charges[0].last_transaction.card.brand }}</td>
+	</tr>	
+	<tr>
+		<td><b>Situação:</b> {{ charges[0].last_transaction.acquirer_return_code }}</td>
+	</tr>
+
+	<tr>
+		<td><b>Dono do cartão:</b> {{ charges[0].last_transaction.card.holder_name }}</td>
+	</tr>	
+	<tr>
+		<td><b>Documento do cartão:</b> {{ charges[0].last_transaction.card.holder_document }}</td>
+	</tr>		
+</table>
+{% endif %}
