@@ -1,72 +1,86 @@
 <?php
 class ControllerExtensionModuleDomPagamento extends Controller {
-	private $error = array();
+	public function index($setting = []) {
+		unset($this->session->data['dompagamento_captcha']);
+		unset($this->session->data['dompagamento_attemp']);
 
-	public function index() {
-		$this->load->language('extension/module/dompagamento');
+		$this->load->language('account/account');
 
-		$this->document->setTitle($this->language->get('heading_title'));
-
-		$this->load->model('setting/setting');
-
-		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-			$this->model_setting_setting->editSetting('module_dompagamento', $this->request->post);
-
-			$this->session->data['success'] = $this->language->get('text_success');
-
-			$this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true));
-		}
-
-		if (isset($this->error['warning'])) {
-			$data['error_warning'] = $this->error['warning'];
+		if (isset($this->request->get['order_id'])) {
+			$order_id = $this->request->get['order_id'];
 		} else {
-			$data['error_warning'] = '';
+			$order_id = 0;
 		}
 
-		$data['breadcrumbs'] = array();
+		$this->load->model('account/order');
 
-		$data['breadcrumbs'][] = array(
-			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
-		);
+		$order_info = $this->model_account_order->getOrder($order_id);
 
-		$data['breadcrumbs'][] = array(
-			'text' => $this->language->get('text_extension'),
-			'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true)
-		);
+		if (!$order_info) {
+			return;
+		}
 
-		$data['breadcrumbs'][] = array(
-			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link('extension/module/dompagamento', 'user_token=' . $this->session->data['user_token'], true)
-		);
+		$this->load->model('extension/payment/dompagamento');
 
-		$data['action'] = $this->url->link('extension/module/dompagamento', 'user_token=' . $this->session->data['user_token'], true);
+		$transaction_info = $this->model_extension_payment_dompagamento->getTransactionByOrderId($order_id);
 
-		$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true);
+		if (!$transaction_info) {
+			return;
+		}
 
-		if (isset($this->request->post['module_dompagamento_status'])) {
-			$data['module_dompagamento_status'] = $this->request->post['module_dompagamento_status'];
+		$data['firstname'] = $order_info['firstname'];
+		$data['lastname'] = $order_info['lastname'];
+		$data['transaction_id'] = $transaction_info['transaction_id'];
+		$data['order_id'] = $order_info['order_id'];
+		$data['postcode'] = $order_info['payment_postcode'];
+		$data['address_1'] = $order_info['payment_address_1'];
+		$data['address_2'] = $order_info['payment_address_2'];
+		$data['payment_method'] = $order_info['payment_method'];
+		$data['shipping_method'] = $order_info['shipping_method'];
+		$data['total'] = $this->currency->format($order_info['total'], $order_info['currency_code']);
+		$data['date'] = date('d/m/Y', strtotime($order_info['date_added']));
+
+		// Status
+		$this->load->model('localisation/order_status');
+
+		$order_status_info = $this->model_localisation_order_status->getOrderStatus($order_info['order_status_id']);
+		
+		$data['order_status_name'] = $order_status_info['name'];
+		$data['order_status'] = $transaction_info['status'];
+
+		if ($data['order_status'] == 'paid') {
+			$data['alert'] = 'success';
+		} else if ($data['order_status'] == 'canceled') {
+			$data['alert'] = 'danger';
 		} else {
-			$data['module_dompagamento_status'] = $this->config->get('module_dompagamento_status');
+			$data['alert'] = 'info';
 		}
 
-		$data['header'] = $this->load->controller('common/header');
-		$data['column_left'] = $this->load->controller('common/column_left');
-		$data['footer'] = $this->load->controller('common/footer');
+		$data['account'] = $this->url->link('account/account');
+		$data['order'] = $this->url->link('account/order', 'order_id='. $order_id);
 
-		$this->response->setOutput($this->load->view('extension/module/dompagamento', $data));
-	}
+		switch ($transaction_info['payment_code']) {
+			case 'dompagamento_boleto':
+				$data['boleto_url'] = $transaction_info['raw']['boleto_url'];
+				$data['boleto_digitable_line'] = $transaction_info['raw']['boleto_digitable_line'];
 
-	protected function validate() {
-		if (!$this->user->hasPermission('modify', 'extension/module/dompagamento')) {
-			$this->error['warning'] = $this->language->get('error_permission');
+				$data['payment'] = $this->load->view('extension/module/dompagamento_boleto_info', $data);
+			break;
+			case 'dompagamento_pix':
+				$data['pix_qrcode'] = $transaction_info['raw']['pix_qrcode'];
+				$data['pix_content'] = $transaction_info['raw']['pix_content'];
+				$data['pix_expire'] = $transaction_info['raw']['pix_expire'];
+
+				$data['payment'] = $this->load->view('extension/module/dompagamento_pix_info', $data);
+			break;
+			case 'dompagamento_card':
+				$data['payment'] = $this->load->view('extension/module/dompagamento_card_info', $data);
+			break;
+			default:
+				// return;
+			break;
 		}
 
-		return !$this->error;
-	}
-
-	public function install(){
-		$this->load->model('setting/setting');
-		$this->model_setting_setting->editSetting('module_dompagamento', ['module_dompagamento_status' => 1]);
+		return $this->load->view('extension/module/dompagamento', $data);
 	}
 }
