@@ -1,0 +1,6 @@
+{
+	
+    "require": {
+        "adhocore/jwt": "^1.1"
+    }
+}
