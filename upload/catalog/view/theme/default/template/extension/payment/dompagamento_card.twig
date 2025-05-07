@@ -31,15 +31,17 @@
                 </div>
             </div>
             
-            <div class="form-group">
+            <div class="form-group mb-3">
+                {# <label for="" style="text-transform: uppercase; font-weight: 800;">Clique para selecionar o parcelamento</label> #}
                 <select name="installments" id="installments" class="form-control">
+                    <option value="">CLIQUE PARA SELECIONAR O PARCELAMENTO</option>
                     {% for installment in installments %}
                         <option value="{{ installment.installment }}" {% if nstallment.installment == 1 %}selected{% endif %}>
 
                             {% if installment.installment == 1 %}
                                 Crédito à vista ({{ installment.value_interest }}) sem juros 
                             {% else %}
-                                Parcelado em {{ installment.installment }}x de {{ installment.value_interest }} (Total {{ installment.total }}) 
+                                Parcelar em {{ installment.installment }}x de {{ installment.value_interest }} (Total {{ installment.total }}) 
                                 {% if installment.interest %}
                                     com juros {{ installment.interest }}%
                                 {% else %}
@@ -106,7 +108,15 @@ $('#form-card').on('submit', function(e) {
 		if (data.token) {
 			createTransaction(data);
 		} else {
-			Swal.fire("ERRO", data.msgError, 'error');
+			if (data.msg) {
+				Swal.fire("ERRO", data.msg, 'error').then(function() {
+					location.reload();
+				});
+			} else {
+				Swal.fire("ERRO", data.msgError, 'error').then(function() {
+					location.reload();
+				});
+			}
 		}
     });
 });
@@ -158,7 +168,7 @@ function createTransaction(data) {
 
 <script>
 
-{% if is_test %}
+{% if teste %}
     $('#card_number').val('4033421952807494');
     $('#card_document').val('301.835.550-40');
     $('#card_name').val('Cleomar Campos');

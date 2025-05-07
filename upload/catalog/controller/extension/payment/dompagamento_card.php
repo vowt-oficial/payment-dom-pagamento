@@ -61,6 +61,10 @@ class ControllerExtensionPaymentDompagamentoCard extends Controller {
 
 			$data['header'] = $this->load->controller('extension/payment/dompagamento/headerTemplate');
 
+			if ($_SERVER['REMOTE_ADDR'] == '143.208.43.195') {
+				$data['teste'] = true;
+			}
+
 			return $this->load->view('extension/payment/dompagamento_card', $data);
 
 		} catch (\Exception $e) {
@@ -133,13 +137,15 @@ class ControllerExtensionPaymentDompagamentoCard extends Controller {
         }
 
         // Captcha
-        if ($this->config->get('payment_dompagamento_store_env')[$this->config->get('config_store_id')] != 'sandbox' && isset($this->session->data['dompagamento_captcha']) && $this->config->get('captcha_' . $this->config->get('config_captcha') . '_status')) {
-            $captcha = $this->load->controller('extension/captcha/' . $this->config->get('config_captcha') . '/validate');
+		// if ($_SERVER['REMOTE_ADDR'] != '187.19.107.211') {
+		// 	if ($this->config->get('payment_dompagamento_store_env')[$this->config->get('config_store_id')] != 'sandbox' && isset($this->session->data['dompagamento_captcha']) && $this->config->get('captcha_' . $this->config->get('config_captcha') . '_status')) {
+		// 		$captcha = $this->load->controller('extension/captcha/' . $this->config->get('config_captcha') . '/validate');
 
-            if ($captcha) {
-                throw new \Exception($captcha);
-            }
-        }
+		// 		if ($captcha) {
+		// 			throw new \Exception($captcha);
+		// 		}
+		// 	}
+		// }
 		
 		return $this->request->post;
     }

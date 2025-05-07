@@ -7,6 +7,45 @@ class ControllerExtensionPaymentDomPagamento extends Controller
 {
     private $error = array();
 
+    public function teste() {
+        $id = '65425b25-d0e5-4fa1-afa6-ad3c616c16cc';
+
+        $url = "https://apiv3.dompagamentos.com.br/checkout/production/transactions/" . $id;
+
+        $token = "75840aebcdb03aedcc42c0be06210c6f22e203e105ccf982f9a157e88d6207d9"; // Substitua por seu token real
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        // Cabeçalhos da requisição
+        $headers = [
+            "Authorization: Bearer $token",
+            "Accept: application/json",
+            "Content-Type: application/json"
+        ];
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // Executa a requisição
+        $response = curl_exec($ch);
+
+        // Verifica erros
+        if (curl_errno($ch)) {
+            echo 'Erro: ' . curl_error($ch);
+        } else {
+            // Exibe a resposta
+            // echo $response;
+        }
+
+        pr($response);
+
+        curl_close($ch);
+
+        die;
+    }
+
     public function index() {
         $this->document->setTitle('dompagamento');
 

@@ -64,8 +64,6 @@ class ModelExtensionPaymentDomPagamentoCard extends Model {
 		
 		$key = $this->config->get('payment_dompagamento_account_public_key');
 		
-		pr($data);die;
-		
 		$response = $this->httpPost('https://api.Dom Pagamentos/core/v5/tokens?appId=' . $key, $data);
 
 		if ( isset($this->request->post['save']) && $this->config->get('payment_dompagamento_save')[$this->config->get('config_store_id')]) {
